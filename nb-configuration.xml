@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-shared-configuration>
+    <properties xmlns="http://www.netbeans.org/ns/maven-properties-data/1">
+        <netbeans.hint.deploy.server>gfv510ee</netbeans.hint.deploy.server>
+        <netbeans.hint.j2eeVersion>1.8-web</netbeans.hint.j2eeVersion>
+    </properties>
+</project-shared-configuration>
