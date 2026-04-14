@@ -9,11 +9,11 @@
 
 ## Before You Start Recording
 
-1. Open **NetBeans** and make sure the project is already deployed and running on GlassFish.  
-   (Right-click project → Run. Wait until the Output window says "deployed successfully".)
+1. Open **NetBeans** and make sure the server is running.  
+   (Open `Main.java` → right-click → **Run File**, or press **Shift+F6**. Wait until you see "Smart Campus API is running!" in the Output window.)
 2. Open **Postman**.
 3. Create a new **Collection** and name it `Smart Campus Demo`.
-4. Do a quick test: GET `http://localhost:8080/smart-campus-api/api/v1` — make sure you get a JSON response. If you do, you are ready.
+4. Do a quick test: GET `http://localhost:8080/api/v1` — make sure you get a JSON response. If you do, you are ready.
 5. Start your screen recording with camera on. Speak naturally.
 
 **Important**: In Postman, for every POST request you must:
@@ -37,7 +37,7 @@
 
 **Do this:**
 - Method: `GET`
-- URL: `http://localhost:8080/smart-campus-api/api/v1`
+- URL: `http://localhost:8080/api/v1`
 - Click **Send**
 
 **Say this:**
@@ -64,7 +64,7 @@ Status: **200 OK**
 
 **Request 1:**
 - Method: `POST`
-- URL: `http://localhost:8080/smart-campus-api/api/v1/rooms`
+- URL: `http://localhost:8080/api/v1/rooms`
 - Body → raw → JSON:
 ```json
 {
@@ -99,7 +99,7 @@ Status: **200 OK**
 
 **Request 1:**
 - Method: `GET`
-- URL: `http://localhost:8080/smart-campus-api/api/v1/rooms`
+- URL: `http://localhost:8080/api/v1/rooms`
 - Click **Send**
 
 **Say this:**
@@ -107,7 +107,7 @@ Status: **200 OK**
 
 **Request 2:**
 - Method: `GET`
-- URL: `http://localhost:8080/smart-campus-api/api/v1/rooms/LIB-301`
+- URL: `http://localhost:8080/api/v1/rooms/LIB-301`
 - Click **Send**
 
 **Say this:**
@@ -119,7 +119,7 @@ Status: **200 OK**
 
 **Request 1 — Temperature sensor:**
 - Method: `POST`
-- URL: `http://localhost:8080/smart-campus-api/api/v1/sensors`
+- URL: `http://localhost:8080/api/v1/sensors`
 - Body:
 ```json
 {
@@ -167,7 +167,7 @@ Status: **200 OK**
 ### STEP 6 — Sensor with Invalid Room → 422 Error [~30 seconds]
 
 - Method: `POST`
-- URL: `http://localhost:8080/smart-campus-api/api/v1/sensors`
+- URL: `http://localhost:8080/api/v1/sensors`
 - Body:
 ```json
 {
@@ -196,7 +196,7 @@ Status: **200 OK**
 ### STEP 7 — Filter Sensors by Type [~25 seconds]
 
 - Method: `GET`
-- URL: `http://localhost:8080/smart-campus-api/api/v1/sensors?type=Temperature`
+- URL: `http://localhost:8080/api/v1/sensors?type=Temperature`
 - Click **Send**
 
 **Say this:**
@@ -208,7 +208,7 @@ Status: **200 OK**
 
 **Request 1:**
 - Method: `POST`
-- URL: `http://localhost:8080/smart-campus-api/api/v1/sensors/TEMP-001/readings`
+- URL: `http://localhost:8080/api/v1/sensors/TEMP-001/readings`
 - Body:
 ```json
 {
@@ -236,7 +236,7 @@ Status: **200 OK**
 ### STEP 9 — Get Reading History [~20 seconds]
 
 - Method: `GET`
-- URL: `http://localhost:8080/smart-campus-api/api/v1/sensors/TEMP-001/readings`
+- URL: `http://localhost:8080/api/v1/sensors/TEMP-001/readings`
 
 **Say this:**
 > "A GET request to the readings path returns the full history. Both readings are listed with their generated IDs and timestamps."
@@ -246,7 +246,7 @@ Status: **200 OK**
 ### STEP 10 — Maintenance Sensor → 403 Error [~25 seconds]
 
 - Method: `POST`
-- URL: `http://localhost:8080/smart-campus-api/api/v1/sensors/OCC-001/readings`
+- URL: `http://localhost:8080/api/v1/sensors/OCC-001/readings`
 - Body:
 ```json
 {
@@ -264,7 +264,7 @@ Status: **200 OK**
 ### STEP 11 — Delete Room with Sensors → 409 Error [~25 seconds]
 
 - Method: `DELETE`
-- URL: `http://localhost:8080/smart-campus-api/api/v1/rooms/LIB-301`
+- URL: `http://localhost:8080/api/v1/rooms/LIB-301`
 
 **Say this:**
 > "Now I will try to delete room LIB-301 which has two sensors assigned. The API returns 409 Conflict because the business rule prevents deleting a room with active sensors. The RoomNotEmptyException mapper returns a clear error message."
@@ -277,7 +277,7 @@ Status: **200 OK**
 
 **First create an empty room:**
 - Method: `POST`
-- URL: `http://localhost:8080/smart-campus-api/api/v1/rooms`
+- URL: `http://localhost:8080/api/v1/rooms`
 - Body:
 ```json
 {
@@ -289,7 +289,7 @@ Status: **200 OK**
 
 **Then delete it:**
 - Method: `DELETE`
-- URL: `http://localhost:8080/smart-campus-api/api/v1/rooms/TEMP-ROOM`
+- URL: `http://localhost:8080/api/v1/rooms/TEMP-ROOM`
 
 **Say this:**
 > "To show that delete works when a room is empty, I create a temporary room with no sensors and then delete it. The response is 204 No Content, which means the deletion was successful. If I send the same delete request again, I get 404 because the room no longer exists, which demonstrates that DELETE is idempotent."
@@ -328,7 +328,7 @@ Status: **200 OK**
 | 17 | DELETE | `/api/v1/rooms/TEMP-ROOM` | — | 204 |
 | 18 | DELETE | `/api/v1/rooms/TEMP-ROOM` | — | 404 |
 
-**Base URL for all**: `http://localhost:8080/smart-campus-api`
+**Base URL for all**: `http://localhost:8080`
 
 ---
 

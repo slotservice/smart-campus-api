@@ -13,11 +13,7 @@ public class RoomNotEmptyExceptionMapper implements ExceptionMapper<RoomNotEmpty
 
     @Override
     public Response toResponse(RoomNotEmptyException exception) {
-        ErrorResponse error = new ErrorResponse(
-                409,
-                "Conflict",
-                exception.getMessage()
-        );
+        ErrorResponse error = new ErrorResponse(409, "Conflict", exception.getMessage());
         return Response.status(Response.Status.CONFLICT)
                 .entity(error)
                 .type(MediaType.APPLICATION_JSON)

@@ -12,13 +12,13 @@ The API follows RESTful architectural principles including proper HTTP methods, 
 
 | Component        | Technology                                  |
 |------------------|---------------------------------------------|
-| Language         | Java 8+                                     |
-| Framework        | JAX-RS 2.1 (Jersey – bundled with GlassFish)|
+| Language         | Java 11+                                    |
+| Framework        | JAX-RS 2.1 (Jersey 2.41)                   |
 | Build Tool       | Apache Maven                                |
-| Server           | GlassFish 5 / Payara 5 (bundled with NetBeans) |
+| Server           | Embedded Grizzly HTTP Server                |
 | Data Storage     | In-memory (`ConcurrentHashMap`, `ArrayList`) |
 | IDE              | Apache NetBeans                             |
-| JSON Provider    | MOXy (bundled with Jersey / GlassFish)      |
+| JSON Provider    | Jackson (jersey-media-json-jackson)         |
 
 ---
 
@@ -71,23 +71,26 @@ smart-campus-api/
 3. Navigate to the `smart-campus-api` folder (the one containing `pom.xml`) and select it.
 4. NetBeans will recognise it as a Maven project automatically.
 
-### Step 2 — Configure the Server
-1. Ensure **GlassFish Server 5** is registered: **Tools → Servers → Add Server → GlassFish**.
-2. Right-click the project → **Properties → Run** → set the server to **GlassFish Server**.
-
-### Step 3 — Build
+### Step 2 — Build
 1. Right-click the project → **Clean and Build**.
-2. Maven will download the `javaee-web-api` dependency and compile all classes.
+2. Maven will download all dependencies (Jersey, Grizzly, Jackson) and compile.
 3. The Output window should show `BUILD SUCCESS`.
 
-### Step 4 — Run
-1. Right-click the project → **Run**.
-2. GlassFish will start and deploy the WAR file.
-3. The API is now live at:
+### Step 3 — Run
+1. In the **Projects** panel, expand `smart-campus-api` → `Source Packages` → `com.smartcampus`.
+2. Right-click on **Main.java** → **Run File** (or press **Shift+F6**).
+3. The console will display:
 
 ```
-http://localhost:8080/smart-campus-api/api/v1
+===========================================
+Smart Campus API is running!
+Base URL: http://localhost:8080/api/v1/
+Test it:  http://localhost:8080/api/v1/
+Press ENTER to stop the server...
+===========================================
 ```
+
+No external server (GlassFish/Tomcat) is needed. The embedded Grizzly server starts automatically.
 
 ### Step 5 — Test
 Open **Postman** or a browser and send a GET request to the URL above. You should see the JSON discovery response.
@@ -114,48 +117,48 @@ Open **Postman** or a browser and send a GET request to the URL above. You shoul
 
 ### 1. API Discovery
 ```bash
-curl -X GET http://localhost:8080/smart-campus-api/api/v1
+curl -X GET http://localhost:8080/api/v1
 ```
 
 ### 2. Create a Room
 ```bash
-curl -X POST http://localhost:8080/smart-campus-api/api/v1/rooms \
+curl -X POST http://localhost:8080/api/v1/rooms \
   -H "Content-Type: application/json" \
   -d '{"id": "LIB-301", "name": "Library Quiet Study", "capacity": 50}'
 ```
 
 ### 3. Get All Rooms
 ```bash
-curl -X GET http://localhost:8080/smart-campus-api/api/v1/rooms
+curl -X GET http://localhost:8080/api/v1/rooms
 ```
 
 ### 4. Create a Sensor (linked to room LIB-301)
 ```bash
-curl -X POST http://localhost:8080/smart-campus-api/api/v1/sensors \
+curl -X POST http://localhost:8080/api/v1/sensors \
   -H "Content-Type: application/json" \
   -d '{"id": "TEMP-001", "type": "Temperature", "status": "ACTIVE", "currentValue": 0.0, "roomId": "LIB-301"}'
 ```
 
 ### 5. Get Sensors Filtered by Type
 ```bash
-curl -X GET "http://localhost:8080/smart-campus-api/api/v1/sensors?type=Temperature"
+curl -X GET "http://localhost:8080/api/v1/sensors?type=Temperature"
 ```
 
 ### 6. Post a Sensor Reading
 ```bash
-curl -X POST http://localhost:8080/smart-campus-api/api/v1/sensors/TEMP-001/readings \
+curl -X POST http://localhost:8080/api/v1/sensors/TEMP-001/readings \
   -H "Content-Type: application/json" \
   -d '{"value": 22.5}'
 ```
 
 ### 7. Get Sensor Reading History
 ```bash
-curl -X GET http://localhost:8080/smart-campus-api/api/v1/sensors/TEMP-001/readings
+curl -X GET http://localhost:8080/api/v1/sensors/TEMP-001/readings
 ```
 
 ### 8. Attempt to Delete a Room That Has Sensors (triggers 409 Conflict)
 ```bash
-curl -X DELETE http://localhost:8080/smart-campus-api/api/v1/rooms/LIB-301
+curl -X DELETE http://localhost:8080/api/v1/rooms/LIB-301
 ```
 
 ---
@@ -395,13 +398,13 @@ Using JAX-RS `ContainerRequestFilter` and `ContainerResponseFilter` for logging 
 
 1. **Static DataStore**: We use a utility class with `static ConcurrentHashMap` fields rather than singleton beans or dependency injection. This keeps the project simple and avoids introducing additional frameworks, as required by the coursework brief.
 
-2. **javax.ws.rs (not Jakarta)**: We use the `javax.ws.rs` package because GlassFish 5 (bundled with NetBeans) uses the **Java EE 8** namespace. The Jakarta EE 9+ namespace (`jakarta.ws.rs`) is used by GlassFish 6+ and would cause `ClassNotFoundException` on GlassFish 5.
+2. **javax.ws.rs namespace**: We use Jersey 2.x which uses the `javax.ws.rs` package. This is the standard JAX-RS 2.1 namespace used across the Java EE ecosystem.
 
-3. **WAR Packaging**: The project is packaged as a WAR file for deployment on GlassFish, which is the standard NetBeans workflow for Java EE web applications.
+3. **Embedded Grizzly Server**: Instead of deploying a WAR file to an external application server, we use an embedded Grizzly HTTP server started from a `Main` class. This eliminates server configuration issues and makes the project self-contained — just run `Main.java`.
 
-4. **Single Maven Dependency**: We use only `javaee-web-api:8.0.1` with `provided` scope. GlassFish supplies all runtime libraries (Jersey, MOXy, Servlet API), so zero additional dependencies are needed. This eliminates version conflicts.
+4. **Jackson for JSON**: We use `jersey-media-json-jackson` for automatic JSON serialisation/deserialisation. Jackson is the most widely used JSON library in Java and handles POJOs, Maps, and Lists seamlessly.
 
-5. **MOXy for JSON**: GlassFish's bundled Jersey uses MOXy as its default JSON provider. It automatically serialises/deserialises POJOs with no configuration required — only getters, setters, and a no-arg constructor are needed.
+5. **JAR Packaging with Shade Plugin**: The Maven Shade plugin packages the application and all dependencies into a single executable JAR. This makes distribution and execution simple.
 
 6. **Thread-Safe Collections**: `ConcurrentHashMap` handles concurrent read/write operations safely without explicit `synchronized` blocks, which is important because JAX-RS processes requests on multiple threads simultaneously.
 

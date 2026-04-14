@@ -15,13 +15,11 @@ import java.util.ArrayList;
 @Consumes(MediaType.APPLICATION_JSON)
 public class RoomResource {
 
-    // GET /api/v1/rooms — return all rooms
     @GET
     public Response getAllRooms() {
         return Response.ok(new ArrayList<>(DataStore.getRooms().values())).build();
     }
 
-    // POST /api/v1/rooms — create a new room
     @POST
     public Response createRoom(Room room) {
         if (room.getId() == null || room.getId().trim().isEmpty()) {
@@ -37,7 +35,6 @@ public class RoomResource {
         return Response.status(Response.Status.CREATED).entity(room).build();
     }
 
-    // GET /api/v1/rooms/{roomId} — get a specific room
     @GET
     @Path("/{roomId}")
     public Response getRoom(@PathParam("roomId") String roomId) {
@@ -50,7 +47,6 @@ public class RoomResource {
         return Response.ok(room).build();
     }
 
-    // DELETE /api/v1/rooms/{roomId} — delete a room (only if it has no sensors)
     @DELETE
     @Path("/{roomId}")
     public Response deleteRoom(@PathParam("roomId") String roomId) {
@@ -60,7 +56,6 @@ public class RoomResource {
                     "Room with ID '" + roomId + "' not found.");
             return Response.status(Response.Status.NOT_FOUND).entity(err).build();
         }
-        // Business rule: cannot delete a room that still has sensors assigned
         if (room.getSensorIds() != null && !room.getSensorIds().isEmpty()) {
             throw new RoomNotEmptyException(
                     "Cannot delete room '" + roomId + "'. It still has "

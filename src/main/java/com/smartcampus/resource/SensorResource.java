@@ -18,12 +18,10 @@ import java.util.stream.Collectors;
 @Consumes(MediaType.APPLICATION_JSON)
 public class SensorResource {
 
-    // GET /api/v1/sensors  or  GET /api/v1/sensors?type=Temperature
     @GET
     public Response getAllSensors(@QueryParam("type") String type) {
         List<Sensor> sensors = new ArrayList<>(DataStore.getSensors().values());
 
-        // Optional filtering by sensor type
         if (type != null && !type.trim().isEmpty()) {
             sensors = sensors.stream()
                     .filter(s -> s.getType().equalsIgnoreCase(type.trim()))
@@ -33,7 +31,6 @@ public class SensorResource {
         return Response.ok(sensors).build();
     }
 
-    // POST /api/v1/sensors — register a new sensor (roomId must exist)
     @POST
     public Response createSensor(Sensor sensor) {
         if (sensor.getId() == null || sensor.getId().trim().isEmpty()) {
@@ -46,7 +43,6 @@ public class SensorResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(err).build();
         }
 
-        // Validate that the referenced room actually exists
         Room room = DataStore.getRoom(sensor.getRoomId());
         if (room == null) {
             throw new LinkedResourceNotFoundException(
@@ -60,14 +56,12 @@ public class SensorResource {
             return Response.status(Response.Status.CONFLICT).entity(err).build();
         }
 
-        // Store the sensor and link it to the room
         DataStore.addSensor(sensor);
         room.getSensorIds().add(sensor.getId());
 
         return Response.status(Response.Status.CREATED).entity(sensor).build();
     }
 
-    // Sub-resource locator: delegates /sensors/{sensorId}/readings to SensorReadingResource
     @Path("/{sensorId}/readings")
     public SensorReadingResource getSensorReadingResource(@PathParam("sensorId") String sensorId) {
         Sensor sensor = DataStore.getSensor(sensorId);
